@@ -1,0 +1,23 @@
+{
+  "name": "runelm-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^1.24.0",
+    "cors": "^2.8.1",
+    "express": "^4.14.0",
+    "express-graphql": "^0.6.1",
+    "format-json": "^1.0.3",
+    "fs-extra": "^1.0.0",
+    "graphql": "^0.8.1",
+    "graphql-tools": "^0.8.1",
+    "jsonwebtoken": "^7.1.9",
+    "node-elm-compiler": "^4.2.0",
+    "raven": "^0.12.3",
+    "request-promise": "^4.1.1",
+    "rethinkdbdash": "2.3.26",
+    "rethinkdbdash-timestampable": "^0.0.2",
+    "simple-oauth2": "^1.0.1"
+  }
+}

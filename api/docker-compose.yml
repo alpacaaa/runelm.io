@@ -1,0 +1,25 @@
+version: '2'
+
+services:
+  api:
+    image: alpacaaa/runelm-api
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/src/app
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      - NUKE_DATA
+      - NODE_ENV=development
+      - NODE_CONFIG_DIR=/src/app/config
+    command: node /src/app/index.js
+
+  db:
+    image: rethinkdb
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "none"
