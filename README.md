@@ -2,19 +2,15 @@
 
 https://runelm.io – A place to share and run elm code.
 
-#### /api
+## /api
 
-Build the docker image with
+Install dependencies with `yarn`
 
-```make build```
+Build the docker image with `make build`
 
-Run it with
+Run it with `docker-compose up`
 
-```docker-compose up```
-
-To drop the database and import a fresh copy of it
-
-```NUKE_DATA=1 docker-compose up```
+To drop the database and import a fresh copy of it `NUKE_DATA=1 docker-compose up`
 
 
 
