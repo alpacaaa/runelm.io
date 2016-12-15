@@ -125,7 +125,7 @@ const createResolvers = ({
 
     Snippet: {
       dependencies({ dependencies }) {
-        return util.objectToDeps(dependencies)
+        return util.objectToDeps(dependencies || {})
       },
 
       isOwner({ id }, args, context) {

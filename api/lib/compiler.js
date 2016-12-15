@@ -36,7 +36,7 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
 
 
   const compile = id => {
-    const folder = snippetFolder + id
+    const folder = snippetFolder + id + '/'
 
     return snippetById(id)
     .then(data => {

@@ -10,6 +10,12 @@ const fetchWithDb = ({ db: r }) => ({
     .run()
   },
 
+  userById(id) {
+    return r.table('user')
+    .get(id)
+    .run()
+  },
+
   updateUserInSnippets(user, snippets) {
     return r.table('snippet')
     .filter(doc => r.expr(snippets).contains(doc('id')))
