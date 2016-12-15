@@ -13,11 +13,14 @@ const { htmlTemplate , errorTemplate } = require('./templates')
 
 const noop = () => null
 
-const checksum = object => {
-  return crypto
-  .createHash('md5')
-  .update(JSON.stringify(object || {}))
-  .digest('hex')
+const checksum = (...objects) => {
+  return objects.map(o =>
+    crypto
+    .createHash('md5')
+    .update(JSON.stringify(o || {}))
+    .digest('hex')
+  )
+  .join('')
 }
 
 const stat = path => {
@@ -45,7 +48,7 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
       fs.ensureDirSync(folder)
 
       const check = {
-        files: checksum(data.files),
+        files: checksum(data.files, data.stylesheets),
         packages: checksum(data.dependencies),
       }
 
