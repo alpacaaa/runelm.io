@@ -12,6 +12,7 @@ const createResolvers = ({
   insertSnippet,
   updateSnippet,
   snippetsByUser,
+  deleteSnippet,
   auth,
   compile,
 }) => {
@@ -119,6 +120,11 @@ const createResolvers = ({
       saveSnippetInfo: auth.ensureOwner((root, args) => {
         return updateSnippet(args)
         .then(() => snippetById(args.id))
+      }),
+
+      deleteSnippet: auth.ensureOwner((root, args) => {
+        return deleteSnippet(args.id)
+        .then(() => true)
       }),
     },
 

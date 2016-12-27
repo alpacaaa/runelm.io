@@ -54,6 +54,13 @@ const fetchWithDb = ({ db: r }) => ({
     .insert(user, { conflict: 'update' })
     .run()
   },
+
+  deleteSnippet(id) {
+    return r.table('snippet')
+    .get(id)
+    .delete()
+    .run()
+  },
 })
 
 

@@ -85,5 +85,7 @@ type Mutation {
     dependencies: [DependencyInput]
     stylesheets: [String]
   ): Snippet
+
+  deleteSnippet(id: ID!): Boolean
 }
 `

@@ -23,6 +23,7 @@ const {
   snippetsByUser,
   updateUserInSnippets,
   insertUser,
+  deleteSnippet,
 } = require('./lib/fetch')({ db })
 
 const auth = require('./lib/auth')({
@@ -60,6 +61,7 @@ const resolvers = require('./lib/graphql-resolvers')({
   insertSnippet,
   updateSnippet,
   snippetsByUser,
+  deleteSnippet,
   auth,
   compile,
 })
