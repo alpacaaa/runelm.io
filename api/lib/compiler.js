@@ -42,7 +42,7 @@ const elmMakeExploded = error => {
 const createCompiler = ({ snippetById, snippetFolder, }) => {
 
 
-  const compile = id => {
+  const compile = (id, retry = false) => {
     const folder = snippetFolder + id + '/'
     const target = folder + 'index.html'
     const checksumFile = folder + 'checksum.json'
@@ -109,17 +109,26 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
           fs.removeSync(folder + 'elm-stuff')
           fs.removeSync(target)
 
-          // retry
-          return compile(id)
+          if (retry) {
+            // exit if we retried already
+            return writeFiles(() =>
+              `<h3>Something awful happened</h3>
+               <p>Try editing your code and run again.</p>
+              `
+            )()
+          }
+
+          return compile(id, true)
         }
 
         const message = prettifyError(string)
-        return errorTemplate({ title: 'Error', message })
+        const template = errorTemplate({ title: 'Error', message })
+        return writeFiles(template)
       }
 
       return compileToString([main], options)
       .then(writeFiles(createHtml))
-      .catch(writeFiles(handleCompileErrors))
+      .catch(handleCompileErrors)
     })
     .catch(console.log)
   }
