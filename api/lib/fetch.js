@@ -46,6 +46,7 @@ const fetchWithDb = ({ db: r }) => ({
   snippetsByUser(user) {
     return r.table('snippet')
     .filter({ user })
+    .orderBy(r.desc('updatedAt'))
     .run()
   },
 
