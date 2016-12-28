@@ -3,7 +3,7 @@
 
 const fs = require('fs-extra')
 const crypto = require('crypto')
-const { compileToString } = require('node-elm-compiler')
+const NodeElmCompiler = require('node-elm-compiler')
 
 
 const util = require('./util')
@@ -36,6 +36,15 @@ const readFile = file => fs.readFileSync(file).toString()
 
 const elmMakeExploded = error => {
   return error.indexOf('unsatisified constraints') > -1
+}
+
+
+const compileToString = (...args) => {
+  return new Promise((resolve, reject) => {
+    NodeElmCompiler.compileToString(...args)
+    .then(data => resolve({ type: 'ok', data }))
+    .catch(data => resolve({ type: 'error', data }))
+  })
 }
 
 
@@ -90,8 +99,7 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
         pathToMake: '/src/elm/elm-0.18.0/dist_binaries/elm-make',
       }
 
-      const writeFiles = fn => result => {
-        const html = fn(result)
+      const writeFiles = html => {
         fs.writeFileSync(target, html)
         fs.writeJsonSync(checksumFile, check)
         return html
@@ -105,18 +113,19 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
 
       const handleCompileErrors = error => {
         const string = error.toString()
+
+        if (retry) {
+          // exit if we retried already
+          return writeFiles(
+            `<h3>Something awful happened</h3>
+             <p>Try editing your code and run again.</p>
+            `
+          )
+        }
+
         if (elmMakeExploded(string)) {
           fs.removeSync(folder + 'elm-stuff')
           fs.removeSync(target)
-
-          if (retry) {
-            // exit if we retried already
-            return writeFiles(() =>
-              `<h3>Something awful happened</h3>
-               <p>Try editing your code and run again.</p>
-              `
-            )()
-          }
 
           return compile(id, true)
         }
@@ -127,8 +136,13 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
       }
 
       return compileToString([main], options)
-      .then(writeFiles(createHtml))
-      .catch(handleCompileErrors)
+      .then(result => {
+        if (result.type === 'ok') {
+          return writeFiles(createHtml(result.data))
+        }
+
+        return handleCompileErrors(result.data)
+      })
     })
     .catch(console.log)
   }
