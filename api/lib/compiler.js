@@ -34,12 +34,18 @@ const stat = path => {
 const readFile = file => fs.readFileSync(file).toString()
 
 
+const elmMakeExploded = error => {
+  return error.indexOf('unsatisified constraints') > -1
+}
+
 
 const createCompiler = ({ snippetById, snippetFolder, }) => {
 
 
   const compile = id => {
     const folder = snippetFolder + id + '/'
+    const target = folder + 'index.html'
+    const checksumFile = folder + 'checksum.json'
 
     return snippetById(id)
     .then(data => {
@@ -51,9 +57,6 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
         files: checksum(data.files, data.stylesheets),
         packages: checksum(data.dependencies),
       }
-
-      const target = folder + 'index.html'
-      const checksumFile = folder + 'checksum.json'
 
       if (stat(checksumFile)) {
         const currentCheck = fs.readJsonSync(checksumFile)
@@ -100,12 +103,23 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
         return htmlTemplate({ js, title, stylesheets: data.stylesheets })
       }
 
+      const handleCompileErrors = error => {
+        const string = error.toString()
+        if (elmMakeExploded(string)) {
+          fs.removeSync(folder + 'elm-stuff')
+          fs.removeSync(target)
+
+          // retry
+          return compile(id)
+        }
+
+        const message = prettifyError(string)
+        return errorTemplate({ title: 'Error', message })
+      }
+
       return compileToString([main], options)
       .then(writeFiles(createHtml))
-      .catch(writeFiles(error => {
-        const message = prettifyError(error.toString())
-        return errorTemplate({ title: 'Error', message })
-      }))
+      .catch(writeFiles(handleCompileErrors))
     })
     .catch(console.log)
   }
