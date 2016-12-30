@@ -107,6 +107,7 @@ app.get('/github-login', routes.githubLogin)
 app.get('/oauth-callback', routes.githubOAuthCallback)
 app.get('/:user/:snippet/result', routes.snippetResult)
 app.get('/:user/:snippet/download', routes.snippetDownload)
+app.get('/oembed', routes.snippetEmbed)
 
 
 SENTRY_URL && app.use(raven.middleware.express.errorHandler(SENTRY_URL))

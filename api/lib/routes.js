@@ -6,6 +6,8 @@ const jsonFormatter = require('format-json')
 
 const util = require('./util')
 const fs = require('fs-extra')
+// $FlowFixMe
+const url = require('url')
 
 const createRoutes = ({
   insertUser,
@@ -121,12 +123,53 @@ const createRoutes = ({
   }
 
 
+  const snippetEmbed = (req, res) => {
+    const notFound = () =>
+      res.sendStatus(404)
+
+    const toParse = req.query.url
+    if (!toParse) return notFound()
+
+    const data = url.parse(toParse, true)
+
+    if (data.hostname !== 'runelm.io')
+      return notFound()
+
+    const path = data.pathname || ''
+    const height = req.query.height || 500
+    const [user, id] = path.substr(1).split('/')
+
+    snippetById(id)
+    .then(snippet => {
+      if (!snippet) return notFound()
+
+      return res.json({
+        type: 'rich',
+        version: '1.0',
+        title: snippet.title || 'Untitled',
+        provider_name: 'runelm.io',
+        provider_url: 'https://runelm.io',
+        width: '100%',
+        height,
+        html: `
+<iframe
+  src="https://runelm.io/c/${snippet.id}"
+  width="100%"
+  height="${height}"
+  frameBorder="0"
+  allowtransparency="true">
+</iframe>`.split('\n').join('')
+      })
+    })
+  }
+
 
   return {
     githubLogin,
     githubOAuthCallback,
     snippetResult,
     snippetDownload,
+    snippetEmbed,
   }
 }
 
