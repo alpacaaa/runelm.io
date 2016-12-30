@@ -1,8 +1,9 @@
 // @flow weak
 
-
 const fs = require('fs-extra')
 const crypto = require('crypto')
+const Promise = require('bluebird')
+const ReadWriteLock = require('rwlock')
 const NodeElmCompiler = require('node-elm-compiler')
 
 
@@ -12,6 +13,7 @@ const { runElmFormat } = require('./formatter')
 const { htmlTemplate , errorTemplate } = require('./templates')
 
 const noop = () => null
+const lock = new ReadWriteLock()
 
 const checksum = (...objects) => {
   return objects.map(o =>
@@ -49,7 +51,6 @@ const compileToString = (...args) => {
 
 
 const createCompiler = ({ snippetById, snippetFolder, }) => {
-
 
   const compile = (id, retry = false) => {
     const folder = snippetFolder + id + '/'
@@ -148,7 +149,21 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
   }
 
 
-  return { compile }
+  return {
+    compile(id) {
+      return new Promise((resolve, reject) => {
+        lock.writeLock('compile-' + id, release => {
+          compile(id)
+          .then(data => {
+            release()
+            resolve(data)
+            return null
+          })
+          .catch(reject)
+        })
+      })
+    }
+  }
 }
 
 
