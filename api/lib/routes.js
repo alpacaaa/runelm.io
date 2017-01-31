@@ -9,6 +9,21 @@ const fs = require('fs-extra')
 // $FlowFixMe
 const url = require('url')
 
+const ratioHelp = (width, height) => {
+  return {
+    width: Math.floor(width),
+    height: Math.floor(height)
+  }
+}
+
+const ratio = (w, h, defaultWidth) => {
+  if (w && !h) return ratioHelp(w, w / 16 * 12)
+  if (h && !w) return ratioHelp(h / 12 * 16, h)
+  if (w && h) return ratioHelp(w, h)
+
+  return ratioHelp(defaultWidth, defaultWidth / 16 * 12)
+}
+
 const createRoutes = ({
   insertUser,
   snippetById,
@@ -136,7 +151,7 @@ const createRoutes = ({
       return notFound()
 
     const path = data.pathname || ''
-    const height = req.query.height || 500
+    const { width, height } = ratio(req.query.width, req.query.height, 800)
     const [user, id] = path.substr(1).split('/')
 
     snippetById(id)
@@ -149,12 +164,12 @@ const createRoutes = ({
         title: snippet.title || 'Untitled',
         provider_name: 'runelm.io',
         provider_url: 'https://runelm.io',
-        width: '100%',
+        width,
         height,
         html: `
 <iframe
   src="https://runelm.io/c/${snippet.id}"
-  width="100%"
+  width="${width}"
   height="${height}"
   frameBorder="0"
   allowtransparency="true">
