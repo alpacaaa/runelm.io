@@ -159,7 +159,7 @@ const createCompiler = ({ snippetById, snippetFolder, }) => {
             resolve(data)
             return null
           })
-          .catch(reject)
+          .catch(e => release() & reject(e))
         })
       })
     }
