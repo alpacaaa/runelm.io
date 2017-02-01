@@ -146,8 +146,9 @@ const createRoutes = ({
     if (!toParse) return notFound()
 
     const data = url.parse(toParse, true)
+    const host = data.hostname || ''
 
-    if (data.hostname.indexOf('runelm.io') === -1)
+    if (host.indexOf('runelm.io') === -1)
       return notFound()
 
     const path = data.pathname || ''
